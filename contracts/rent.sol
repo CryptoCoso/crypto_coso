@@ -3,38 +3,90 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
+contract Rent is ERC721, Ownable {
+    address originalOwner;
+    address currentOwner;
+    
+    uint256 private amountToClaim;
 
-contract Rent is Ownable {
-    address payable originalOwner;
-    uint private amountToClaim;
-    IERC20 token;
-       
-    uint public rentingPrice;
+    uint256 public rentingPrice;
     uint64 public _start;
     uint64 public _end;
+    // uint256[2] procesedPrices;
 
-    constructor() {
-        originalOwner = payable(msg.sender);
+    string public uri;
+    address multisig;
+
+    uint constant fee = 3;
+    IERC20 token;
+
+    mapping(address => uint256) public owners;
+    mapping(uint256 => address) public ownedNFTs;  
+
+    constructor(
+        string memory name_,
+        string memory symbol_,
+        string memory uri_,
+        address tokenAddress,
+        address multisign_
+    ) ERC721(name_, symbol_) {
+        originalOwner = msg.sender;
+        token = IERC20(tokenAddress);
+        uri = uri_;
+        multisig = multisign_;
     }
 
-    //beneficiary envía el dinero y se guarda en el contrato segun los terminos 
+    event Renting(
+        address indexed _owner,
+        address indexed _beneficiary,
+        uint256 _amount
+    );
+
+    //beneficiary envía el dinero y se guarda en el contrato segun los terminos
     //owner envía nft
 
-
-    function rent(uint _rentingPrice, address _beneficiary ) public payable {
-       token.transferFrom(_beneficiary, address(this), _rentingPrice);
-
+    function mint(uint256 tokenId) external onlyOwner {
+        _mint(originalOwner, tokenId);
     }
 
-    // the owner claims the money
+    function getNFT(address _beneficiary) public view returns (uint) {
+        return owners[_beneficiary];
+    }
+    
+    function getOwnership(uint _tokenId) public view returns (address) {
+        return ownedNFTs[_tokenId];
+    }
+    
+    // posiblemente va en el front
+    function _calculateFeeAndFinalPrice (uint256 _rentingPrice) internal pure returns (uint256 , uint256) {
+        uint256 contractFee = _rentingPrice / 100 * fee;
+        uint256 finalRentingPrice = _rentingPrice - contractFee;
+        return (contractFee, finalRentingPrice);
+    }
+
+    function rent(
+        uint _rentingPrice,
+        address _beneficiary,
+        uint tokenId
+    ) public payable {
+        ( , uint256 taxedRent ) = _calculateFeeAndFinalPrice(_rentingPrice);
+
+        approve(originalOwner, tokenId);
+        transferFrom(originalOwner, _beneficiary, tokenId);
+
+        token.transferFrom(originalOwner, _beneficiary,  taxedRent);
+        emit Renting(originalOwner, _beneficiary, _rentingPrice);
+    }
+
+    /* claims the money */
     function claim() external onlyOwner {
         /// faltan checks
-        uint convertionRate = 86400000;
-        require( block.timestamp - _start / convertionRate >= 30 , "Expired");
+        uint256 convertionRate = 86400000;
+        require(block.timestamp - _start / convertionRate >= 30, "Expired");
 
         // cómo sabe que tiene un amount??
-        token.transferFrom(address(this), originalOwner ,rentingPrice);
+        token.transferFrom(address(this), originalOwner, rentingPrice);
     }
-
 }
