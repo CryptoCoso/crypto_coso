@@ -4,6 +4,7 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+//import "./Oracle.sol";
 
 contract Rent is ERC721, Ownable {
     address originalOwner = msg.sender;
@@ -77,7 +78,7 @@ contract Rent is ERC721, Ownable {
         emit Renting(originalOwner, _beneficiary, _rentingPrice);
     }
 
-    function exit(address _beneficiary) public {
+    function exit(address _beneficiary, uint256 tokenId) public {
         transferFrom(_beneficiary,originalOwner, tokenId);
     }
 

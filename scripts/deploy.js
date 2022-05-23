@@ -1,11 +1,9 @@
 const hre = require("hardhat");
 require("dotenv").config();
 
-
 let ipfs = process.env.IPFS;
 let token_usdt = "0x036F3Bc6cA1C4140E473E849Fa9AA3808F055CE9";
 let multisign = process.env.MULTISIGN;
-
 
 let args = [
   "CryptoCRent",

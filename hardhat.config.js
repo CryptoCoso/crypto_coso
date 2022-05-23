@@ -1,6 +1,9 @@
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
-require("dontenv").config();
+require("dotenv").config();
+
+console.log(process.env.KEY);
+console.log(process.env.URL);
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -9,8 +12,9 @@ module.exports = {
   solidity: "0.8.4",
   networks: {
     rinkeby: {
-      url: process.env.URL,
-      account: [process.env.KEY]
+      url: process.env.KEY,
+      account: [process.env.KEY],
+      chainId: 4,
     },
     mainnet: { 
       url: process.env.URL_MAIN,
