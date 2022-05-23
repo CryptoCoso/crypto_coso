@@ -6,15 +6,13 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract Rent is ERC721, Ownable {
-    address originalOwner;
-    address currentOwner;
+    address originalOwner = msg.sender;
     
     uint256 private amountToClaim;
 
     uint256 public rentingPrice;
     uint64 public _start;
     uint64 public _end;
-    // uint256[2] procesedPrices;
 
     string public uri;
     address multisig;
@@ -32,7 +30,6 @@ contract Rent is ERC721, Ownable {
         address tokenAddress,
         address multisign_
     ) ERC721(name_, symbol_) {
-        originalOwner = msg.sender;
         token = IERC20(tokenAddress);
         uri = uri_;
         multisig = multisign_;
@@ -78,6 +75,10 @@ contract Rent is ERC721, Ownable {
 
         token.transferFrom(originalOwner, _beneficiary,  taxedRent);
         emit Renting(originalOwner, _beneficiary, _rentingPrice);
+    }
+
+    function exit(address _beneficiary) public {
+        transferFrom(_beneficiary,originalOwner, tokenId);
     }
 
     /* claims the money */
