@@ -1,0 +1,4 @@
+{
+    "solidity.compileUsingRemoteVersion": "latest",
+    "solidity.compileUsingLocalVersion": "\\\\wsl.localhost\\Ubuntu\\home\\bryanox\\documents\\hackaton\\crypto_coso\\soljson-v0.8.14+commit.80d49f37.js"
+}

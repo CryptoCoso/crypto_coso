@@ -13,14 +13,14 @@ let args = [
   multisign
 ];
 
-
 async function main() {
-
+  // const signer = await hre.ethers.getSigner();
+  // console.log({signer})
   // We get the contract to deploy
   const Rent = await hre.ethers.getContractFactory("Rent");
   const rent = await Rent.deploy(...args);
   await rent.deployed(); //validate Tx
- 
+
   console.log("Rent deployed to:", rent.address);
 }
 

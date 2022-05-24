@@ -12,7 +12,7 @@ module.exports = {
   solidity: "0.8.4",
   networks: {
     rinkeby: {
-      url: process.env.KEY,
+      url: process.env.URL,
       account: [process.env.KEY],
       chainId: 4,
     },
